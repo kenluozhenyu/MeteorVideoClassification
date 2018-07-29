@@ -63,6 +63,13 @@ FFMPEG_COMMAND = 'D:/Software/ffmpeg-20180226-f4709f1-win64-static/bin/ffmpeg'
 # *** NEED MANUAL CREATION ***
 #
 # Training sample folder
+# /project/
+#          Training/
+#
+# NOTE:
+#    Only need to create this folder.
+#    Sub-folder will be created by code
+#
 # TRAINING_FOLDER = '%s/Training' % PROJECT_FOLDER
 TRAINING_FOLDER = '%s/360-cropped-subtracted' % PROJECT_FOLDER
 
