@@ -111,21 +111,20 @@ def pre_process_method_1(sample_type):
         src = os.path.join(cropped_video_folder, filename)
         dest = os.path.join(compressed_video_folder, filename)
 
-        '''
-        -y
-        覆盖输出文件
-        -threads
-        8
-        指定多线程
-        -i
-        输入文件
-        -s
-        分辨率
-        输出文件直接指定
-    
-        -b:v 1M -vcodec h264
-        确保足够的转换质量
-        '''
+        # -y
+        # 覆盖输出文件
+        # -threads
+        # 8
+        # 指定多线程
+        # -i
+        # 输入文件
+        # -s
+        # 分辨率
+        # 输出文件直接指定
+        # 
+        # -b:v 1M -vcodec h264
+        # 确保足够的转换质量
+        
         # call("D:/Software/ffmpeg-20180226-f4709f1-win64-static/bin/ffmpeg -y -threads 8 -i "
         call("%s -y -threads 8 -i " % environment.FFMPEG_COMMAND
              + src
@@ -218,7 +217,9 @@ def pre_process_method_1(sample_type):
             if count > 4:
                 # Skip the first blank frame (don't know why)
                 # Also skip the fist few frames to ensure the background was clearly subtracted
-                cv2.imwrite(dest % count, fgmask)
+
+                dest_img_file = dest % count
+                cv2.imwrite(dest_img_file, fgmask)
 
             count += 1
 
@@ -264,7 +265,7 @@ def pre_process_method_1(sample_type):
 
 
 def main():
-    # pre_process_method_1('fortest')
+    # pre_process_method_1('just_for_test')
     pre_process_method_1('Meteor')
     pre_process_method_1('Others')
 

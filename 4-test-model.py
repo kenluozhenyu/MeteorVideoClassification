@@ -10,6 +10,7 @@ import time
 import os.path
 import glob
 import random
+import math
 
 import environment
 import conv_rnn
@@ -39,7 +40,8 @@ def threadsafe_generator(func):
 
 
 # @threadsafe_generator
-def frame_generator_no_random(data_folder, data_type):
+
+def frame_generator_no_random(data_folder, i_from, i_to, data_type):
 
     '''
 
@@ -81,6 +83,9 @@ def frame_generator_no_random(data_folder, data_type):
     # while 1:
     X, y, z = [], [], []
 
+    i_count = 0
+    b_finished = False
+
     # Generate batch_size samples.
     # for _ in range(batch_size):
 
@@ -92,6 +97,9 @@ def frame_generator_no_random(data_folder, data_type):
     # selected_class = random.choice(class_list)
 
     for selected_class in class_list:
+        if b_finished:
+            break
+
         class_folder = os.path.join(data_folder, selected_class)
 
         # Get all samples' folder name.
@@ -101,6 +109,15 @@ def frame_generator_no_random(data_folder, data_type):
         # selected_sample = random.choice(sample_list)
 
         for selected_sample in sample_list:
+
+            i_count += 1
+            if i_count < i_from:
+                continue
+
+            if i_count > i_to:
+                b_finished = True
+                break
+
             sample_folder = os.path.join(class_folder, selected_sample)
 
             # print(selected_sample)
@@ -173,6 +190,9 @@ def frame_generator_no_random(data_folder, data_type):
         # print(np.array(y))
         # yield np.array(X), np.array(y)
 
+    # print(np.array(X))
+    # print(np.array(y))
+    # print(np.array(z))
     return np.array(X), np.array(y), np.array(z)
 
 def main():
@@ -203,39 +223,68 @@ def main():
     print(model.summary())
 
     checkpoint_folder = os.path.join(environment.TRAINING_FOLDER, '_checkpoints')
-    model.load_weights(os.path.join(checkpoint_folder, 'LSTM-train.030-0.372.hdf5'))
+    model.load_weights(os.path.join(checkpoint_folder, 'LSTM-train.064-0.400.hdf5'))
     # model.load_weights("D:/meteor-monitor/360-cropped-subtracted/_checkpoints/LSTM-train.030-0.372.hdf5")
 
     test_sample_folder = os.path.join(environment.TRAINING_FOLDER, 'Test')
-    test_generator_Data, test_generator_Lable, test_generator_File = frame_generator_no_random(test_sample_folder, 'Test')
-    print(test_generator_Lable)
-    print(test_generator_File)
+    # test_generator_Data, test_generator_Lable, test_generator_File = frame_generator_no_random(test_sample_folder, 'Test')
+    # test_generator_Data, test_generator_Lable, test_generator_File = frame_generator(batch_size, test_sample_folder, 'Test')
 
-    # scores_predict = model.predict_generator(generator=test_generator)
-    scores_predict = model.predict(test_generator_Data, batch_size=batch_size, verbose=1)
-    print("\n")
-    print(scores_predict)
+    # Due to large sample size, would not be enough physical memory to get all
+    # data be fit in at one time. Need to do that in several times.
+    #
+    test_sample_size = 516
+    segment_step = 100
+
+    segment_num = math.ceil(test_sample_size / segment_step)
+    # print(segment_num)
 
     correct_count = 0
     count = 0
-    print("\n")
-    for i in range(len(scores_predict)):
-        count += 1
-        correct_predict = False
 
-        if i < 60:
-            sample_class = "meteor"
-            if scores_predict[i][0] >= 0.5:
-                correct_count += 1
-                correct_predict = True
-        else:
-            sample_class = "others"
-            if scores_predict[i][0] <= 0.5:
-                correct_count += 1
-                correct_predict = True
+    for j in range(segment_num):
+        i_from = j*segment_step + 1
+        i_to = j*segment_step + segment_step
 
-        print("%2d. %s -- %45s: predicted result: [%0.8f %0.8f], %r" % (
-            count, sample_class, test_generator_File[i], scores_predict[i][0], scores_predict[i][1], correct_predict))
+        if i_to > test_sample_size:
+            i_to = test_sample_size
+
+        print("\n")
+        print(i_from)
+        print(i_to)
+
+        # test_generator_Data, test_generator_Lable, test_generator_File = [], [], []
+
+        test_generator_Data, test_generator_Lable, test_generator_File = \
+            frame_generator_no_random(test_sample_folder, i_from, i_to, 'Test')
+
+        print(test_generator_Lable)
+        print(test_generator_File)
+
+        # scores_predict = model.predict_generator(generator=test_generator)
+        scores_predict = model.predict(test_generator_Data, batch_size=batch_size, verbose=1)
+        print("\n")
+        print(scores_predict)
+
+        print("\n")
+        for i in range(len(scores_predict)):
+            count += 1
+            correct_predict = False
+
+            # if i < 278:
+            if count <= 278:
+                sample_class = "Meteor"
+                if scores_predict[i][0] >= 0.5:
+                    correct_count += 1
+                    correct_predict = True
+            else:
+                sample_class = "Others"
+                if scores_predict[i][0] <= 0.5:
+                    correct_count += 1
+                    correct_predict = True
+
+            print("%2d. %s -- %45s: predicted result: [%0.8f %0.8f], %r" % (
+                count, sample_class, test_generator_File[i], scores_predict[i][0], scores_predict[i][1], correct_predict))
 
     print("\n%d out of %d correct. %f accuracy" % (correct_count, count, correct_count / count))
 

@@ -1,17 +1,26 @@
 # *** NEED MANUAL CREATION ***
 #
 # The root folder
-PROJECT_FOLDER = 'D:/meteor-monitor'
+# PROJECT_FOLDER = 'D:/meteor-monitor'
+# PROJECT_FOLDER = 'Z:/流星监测网'
+#
+# Better to be English characters only. Otherwise the pre-processing
+# could fail at step 4 (extracting images from video files)
+#
+PROJECT_FOLDER = 'Z:/meteor-monitor-network'
 
 # *** NEED MANUAL CREATION ***
 #
 # The original sample video data for training
-ORIGINAL_DATA_FOLDER = '%s/data' % PROJECT_FOLDER
+# ORIGINAL_DATA_FOLDER = '%s/data' % PROJECT_FOLDER
+ORIGINAL_DATA_FOLDER = '%s/meteor_data_categorized' % PROJECT_FOLDER
 
 # *** NEED MANUAL CREATION ***
 # /project/
 #          data/
 #               Meteor/
+#                     video/
+#               Others/
 #                     video/
 #
 # The meteor data files, including original videos,
@@ -26,6 +35,8 @@ METEOR_VIDEO_FILE_FOLDER = '%s/video' % METEOR_DATA_FOLDER
 # *** NEED MANUAL CREATION ***
 # /project/
 #          data/
+#               Meteor/
+#                     video/
 #               Others/
 #                     video/
 #
@@ -70,8 +81,8 @@ FFMPEG_COMMAND = 'D:/Software/ffmpeg-20180226-f4709f1-win64-static/bin/ffmpeg'
 #    Only need to create this folder.
 #    Sub-folder will be created by code
 #
-# TRAINING_FOLDER = '%s/Training' % PROJECT_FOLDER
-TRAINING_FOLDER = '%s/360-cropped-subtracted' % PROJECT_FOLDER
+TRAINING_FOLDER = '%s/Training' % PROJECT_FOLDER
+# TRAINING_FOLDER = '%s/360-cropped-subtracted' % PROJECT_FOLDER
 
 
 # For CONV_RNN network output

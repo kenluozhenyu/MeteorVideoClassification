@@ -190,8 +190,8 @@ def main():
     # Training parameters
     batch_size = 3
     nb_epoch = 100
-    training_sample_size = 1200
-    validation_sample_size = 152
+    training_sample_size = 4200
+    validation_sample_size = 520
 
     # Get the model
     model = conv_rnn.build_Conv_RNN()
